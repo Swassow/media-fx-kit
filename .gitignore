@@ -1,0 +1,26 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Module builds
+app/build/
+ffmpeg-kit/build/
+
+# Generated files
+*.apk
+*.ap_
+*.dex
+
+# Logs
+*.log
+
+# Test outputs
+app/src/androidTest/
+app/src/test/
