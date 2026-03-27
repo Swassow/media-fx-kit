@@ -1,6 +1,6 @@
 # Media FX Kit
 
-[![](https://jitpack.io/v/com.gitlab.neuralsound.sound-android/media-fx-kit.svg)](https://jitpack.io/#com.gitlab.neuralsound.sound-android/media-fx-kit)
+[![](https://jitpack.io/v/Swassow/media-fx-kit.svg)](https://jitpack.io/#Swassow/media-fx-kit)
 
 A standalone Android library that wraps FFmpeg-Kit to provide audio/video effects processing. Designed for easy integration via JitPack.
 
@@ -30,7 +30,7 @@ Add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.gitlab.neuralsound.sound-android:media-fx-kit:1.0.0")
+    implementation("com.github.Swassow:media-fx-kit:v1.0.0")
 }
 ```
 
