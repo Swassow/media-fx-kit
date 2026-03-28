@@ -1,43 +1,26 @@
 plugins {
-    alias(libs.plugins.android.library)
     `maven-publish`
-}
-
-android {
-    namespace = "com.neuralsound.ffmpegkit"
-    compileSdk = 36
-
-    defaultConfig {
-        minSdk = 24
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
-}
-
-dependencies {
-    api(files("libs/ffmpeg-kit.aar"))
-    api("com.arthenica:smart-exception-java:0.2.1")
 }
 
 publishing {
     publications {
-        register<MavenPublication>("release") {
+        create<MavenPublication>("maven") {
             groupId = "com.neuralsound"
-            artifactId = "ffmpeg-kit-wrapper"
+            artifactId = "ffmpeg-kit"
             version = "1.0.0"
 
-            afterEvaluate {
-                from(components["release"])
+            artifact(file("libs/ffmpeg-kit.aar"))
+
+            pom {
+                packaging = "aar"
+                withXml {
+                    val deps = asNode().appendNode("dependencies")
+                    val dep = deps.appendNode("dependency")
+                    dep.appendNode("groupId", "com.arthenica")
+                    dep.appendNode("artifactId", "smart-exception-java")
+                    dep.appendNode("version", "0.2.1")
+                    dep.appendNode("scope", "runtime")
+                }
             }
         }
     }

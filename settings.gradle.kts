@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Media-fx-kit"
 include(":app")
+include(":ffmpeg-kit")
  
