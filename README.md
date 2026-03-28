@@ -14,10 +14,13 @@ A standalone Android library that wraps FFmpeg-Kit to provide audio/video effect
 
 ## Installation
 
-Add JitPack repository to your `settings.gradle.kts`:
+### Step 1: Add JitPack Repository
+
+In your project's **`settings.gradle.kts`** (root level), add JitPack to the repositories:
 
 ```kotlin
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -26,13 +29,44 @@ dependencyResolutionManagement {
 }
 ```
 
-Add the dependency to your module's `build.gradle.kts`:
+<details>
+<summary>Groovy (settings.gradle)</summary>
+
+```groovy
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+</details>
+
+### Step 2: Add the Dependency
+
+In your app module's **`build.gradle.kts`** (`app/build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("com.github.Swassow:media-fx-kit:v1.0.0")
+    implementation("com.github.Swassow:media-fx-kit:v1.0.1")
 }
 ```
+
+<details>
+<summary>Groovy (build.gradle)</summary>
+
+```groovy
+dependencies {
+    implementation 'com.github.Swassow:media-fx-kit:v1.0.1'
+}
+```
+</details>
+
+### Step 3: Sync & Build
+
+Click **"Sync Now"** in Android Studio. The library and its bundled FFmpeg-Kit will be downloaded automatically — no additional dependencies needed.
 
 ## Quick Start
 
