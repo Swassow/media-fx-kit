@@ -16,10 +16,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("${rootProject.projectDir}/repo")
+        }
     }
 }
 
 rootProject.name = "Media-fx-kit"
 include(":app")
-include(":ffmpeg-kit")
  

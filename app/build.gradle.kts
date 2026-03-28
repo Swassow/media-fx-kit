@@ -41,8 +41,9 @@ android {
 }
 
 dependencies {
-    // FFmpeg-Kit wrapper module (exposes FFmpeg-Kit transitively)
-    api(project(":ffmpeg-kit"))
+    // FFmpeg-Kit from local maven repo
+    api("com.arthenica.ffmpegkit:ffmpeg-kit:6.0")
+    api("com.arthenica:smart-exception-java:0.2.1")
 
     // Coroutines for async operations
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
