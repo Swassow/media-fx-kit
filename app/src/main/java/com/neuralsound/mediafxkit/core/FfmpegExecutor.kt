@@ -130,6 +130,13 @@ object FfmpegExecutor {
     }
     
     /**
+     * Cancel a specific FFmpeg session by its session ID.
+     */
+    fun cancel(sessionId: Long) {
+        FFmpegKit.cancel(sessionId)
+    }
+    
+    /**
      * Cancel all running FFmpeg sessions.
      */
     fun cancelAll() {

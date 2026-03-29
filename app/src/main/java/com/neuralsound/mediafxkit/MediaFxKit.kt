@@ -4,6 +4,11 @@ import com.neuralsound.mediafxkit.core.FfmpegCommandBuilder
 import com.neuralsound.mediafxkit.core.FfmpegExecutor
 import com.neuralsound.mediafxkit.core.ProcessingResult
 import com.neuralsound.mediafxkit.effects.*
+import com.neuralsound.mediafxkit.fx.FxApi
+import com.neuralsound.mediafxkit.fx.FxEffect
+import com.neuralsound.mediafxkit.fx.FxResult
+import com.neuralsound.mediafxkit.fx.FxSession
+import com.neuralsound.mediafxkit.fx.OutputFormat
 import com.neuralsound.mediafxkit.operations.*
 import com.neuralsound.mediafxkit.util.PathUtils
 
@@ -307,12 +312,155 @@ object MediaFxKit {
      */
     fun command(): FfmpegCommandBuilder = FfmpegCommandBuilder.create()
     
+    // ==================== FX API (Karaoke App Interface) ====================
+    
+    /**
+     * Shift pitch by N semitones without changing tempo.
+     * Used by: Hard Tune, Natural Tune, Super Vocoder presets.
+     */
+    suspend fun pitchShiftFx(
+        inputPath: String,
+        outputPath: String,
+        semitones: Double,
+        sampleRate: Int = 44100
+    ): FxResult = FxApi.pitchShift(inputPath, outputPath, semitones, sampleRate)
+    
+    /**
+     * Add chorus effect with configurable voice count and depth.
+     * Used by: Hard Tune (single voice), Big Chorus (3 voices).
+     */
+    suspend fun addChorusFx(
+        inputPath: String,
+        outputPath: String,
+        inGain: Float = 0.5f,
+        outGain: Float = 0.9f,
+        delays: List<Int>,
+        decays: List<Float>,
+        speeds: List<Float>,
+        depths: List<Float>
+    ): FxResult = FxApi.addChorus(inputPath, outputPath, inGain, outGain, delays, decays, speeds, depths)
+    
+    /**
+     * Add echo/delay effect.
+     * Used by: Natural Tune, Super Vocoder.
+     */
+    suspend fun addEchoFx(
+        inputPath: String,
+        outputPath: String,
+        inGain: Float = 0.8f,
+        outGain: Float = 0.88f,
+        delayMs: Int = 60,
+        decay: Float = 0.4f
+    ): FxResult = FxApi.addEcho(inputPath, outputPath, inGain, outGain, delayMs, decay)
+    
+    /**
+     * Add flanger modulation effect.
+     * Used by: Super Vocoder.
+     */
+    suspend fun addFlangerFx(
+        inputPath: String,
+        outputPath: String,
+        delayMs: Float = 1f,
+        depth: Float = 2f,
+        speed: Float = 10f,
+        width: Float = 80f,
+        shape: String = "sinusoidal"
+    ): FxResult = FxApi.addFlanger(inputPath, outputPath, delayMs, depth, speed, width, shape)
+    
+    /**
+     * Add amplitude modulation (tremolo) effect.
+     * Used by: Super Vocoder.
+     */
+    suspend fun addTremoloFx(
+        inputPath: String,
+        outputPath: String,
+        frequency: Double = 5.0,
+        depth: Double = 0.5
+    ): FxResult = FxApi.addTremolo(inputPath, outputPath, frequency, depth)
+    
+    /**
+     * Apply dynamic range compression.
+     * Used by: Hard Tune, Clean.
+     */
+    suspend fun compressFx(
+        inputPath: String,
+        outputPath: String,
+        thresholdDb: Float = -20f,
+        ratio: Float = 2f,
+        attackMs: Float = 5f,
+        releaseMs: Float = 100f,
+        makeupDb: Float = 0f
+    ): FxResult = FxApi.compress(inputPath, outputPath, thresholdDb, ratio, attackMs, releaseMs, makeupDb)
+    
+    /**
+     * Apply high-pass filter to remove low-frequency rumble.
+     * Used by: Clean.
+     */
+    suspend fun highPassFx(
+        inputPath: String,
+        outputPath: String,
+        cutoffHz: Int = 80
+    ): FxResult = FxApi.highPass(inputPath, outputPath, cutoffHz)
+    
+    /**
+     * Apply EBU R128 loudness normalization.
+     * Used by: Clean.
+     */
+    suspend fun normalizeLoudnessFx(
+        inputPath: String,
+        outputPath: String,
+        integratedLoudness: Float = -14f,
+        truePeak: Float = -1f,
+        loudnessRange: Float = 11f
+    ): FxResult = FxApi.normalizeLoudness(inputPath, outputPath, integratedLoudness, truePeak, loudnessRange)
+    
+    /**
+     * Apply multiple effects in a single FFmpeg pass (one decode → filter → encode cycle).
+     * This is the primary API for all karaoke FX presets.
+     *
+     * Example (Hard Tune at strength 54):
+     * ```kotlin
+     * MediaFxKit.applyChain(
+     *     inputPath = "/path/to/vocal.m4a",
+     *     outputPath = "/path/to/output.m4a",
+     *     effects = listOf(
+     *         FxEffect.PitchShift(semitones = 1.08),
+     *         FxEffect.Chorus(delays = listOf(55), decays = listOf(0.4f), speeds = listOf(0.25f), depths = listOf(2f)),
+     *         FxEffect.Compressor(thresholdDb = -15f, ratio = 3f, attackMs = 5f, releaseMs = 50f)
+     *     )
+     * )
+     * ```
+     */
+    suspend fun applyChain(
+        inputPath: String,
+        outputPath: String,
+        effects: List<FxEffect>,
+        outputFormat: OutputFormat = OutputFormat.M4A
+    ): FxResult = FxApi.applyChain(inputPath, outputPath, effects, outputFormat)
+    
+    /**
+     * Callback-based async variant of [applyChain] for non-suspend contexts.
+     * Returns an [FxSession] handle that can be passed to [cancel] for cancellation.
+     */
+    fun applyChainAsync(
+        inputPath: String,
+        outputPath: String,
+        effects: List<FxEffect>,
+        outputFormat: OutputFormat = OutputFormat.M4A,
+        onComplete: (FxResult) -> Unit
+    ): FxSession = FxApi.applyChainAsync(inputPath, outputPath, effects, outputFormat, onComplete)
+    
     // ==================== Control ====================
     
     /**
      * Cancel the currently running operation.
      */
     fun cancel() = FfmpegExecutor.cancel()
+    
+    /**
+     * Cancel a specific FFmpeg session by its session ID.
+     */
+    fun cancel(sessionId: Long) = FfmpegExecutor.cancel(sessionId)
     
     /**
      * Cancel all running operations.
